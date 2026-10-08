@@ -116,7 +116,11 @@
 
           <!-- Các nút chuyển nhanh bài học -->
           <div class="flex flex-wrap items-center gap-2">
-            <button id="btn-quick-b1" onclick="switchLesson(1)" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-white text-emerald-950 ring-2 ring-emerald-300">
+            <button id="btn-quick-ck1" onclick="switchLesson('de_ck1')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black">
+              <span>⭐</span> <span>Đề ôn Cuối Kì 1</span>
+              <span id="badge-count-ck1" class="bg-slate-900 text-amber-300 text-[10px] px-1.5 py-0.5 rounded-full font-black">0 bài</span>
+            </button>
+            <button id="btn-quick-b1" onclick="switchLesson(1)" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-emerald-900/80 hover:bg-emerald-700 text-white">
               <span>🧪</span> <span>Bài 1: Ester - Xà phòng</span>
               <span id="badge-count-b1" class="bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black">0 bài</span>
             </button>
@@ -556,6 +560,13 @@
       const sel = document.getElementById('lesson-master-select');
       if (!sel) return;
       sel.innerHTML = '';
+
+      const ck1Opt = document.createElement('option');
+      ck1Opt.value = 'de_ck1';
+      ck1Opt.innerText = '⭐ Đề ôn Cuối Kì 1 (Chuẩn 2025)';
+      if (currentActiveLessonId === 'de_ck1') ck1Opt.selected = true;
+      sel.appendChild(ck1Opt);
+
       ALL_20_LESSONS.forEach(l => {
         const opt = document.createElement('option');
         opt.value = l.id;
@@ -579,7 +590,7 @@
     }
 
     function switchLesson(lessonId) {
-      currentActiveLessonId = (lessonId === 'ALL') ? 'ALL' : (parseInt(lessonId, 10) || 1);
+      currentActiveLessonId = (lessonId === 'ALL' || lessonId === 'de_ck1') ? lessonId : (parseInt(lessonId, 10) || 1);
 
       const sel = document.getElementById('lesson-master-select');
       if (sel) sel.value = currentActiveLessonId;
@@ -587,7 +598,9 @@
       const badge = document.getElementById('current-lesson-badge');
       if (badge) {
         if (currentActiveLessonId === 'ALL') {
-          badge.innerText = 'Tất cả 20 bài';
+          badge.innerText = 'Tất cả các bài';
+        } else if (currentActiveLessonId === 'de_ck1') {
+          badge.innerText = '⭐ Đề ôn Cuối Kì 1';
         } else {
           const found = ALL_20_LESSONS.find(l => l.id === currentActiveLessonId);
           badge.innerText = found ? found.short : `Bài ${currentActiveLessonId}`;
@@ -599,6 +612,17 @@
         const baseUrl = window.location.href.split('?')[0].split('#')[0].replace('giaovien.html', '');
         displayLink.innerText = `${baseUrl}?bai=${currentActiveLessonId}`;
       }
+
+      // Đổi kiểu các nút chuyển nhanh
+      const btnCK1 = document.getElementById('btn-quick-ck1');
+      const btnB1 = document.getElementById('btn-quick-b1');
+      const btnB2 = document.getElementById('btn-quick-b2');
+      const btnAll = document.getElementById('btn-quick-all');
+
+      if (btnCK1) btnCK1.className = (currentActiveLessonId === 'de_ck1') ? "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-amber-400 text-slate-950 ring-2 ring-amber-300 font-black" : "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-amber-500/80 hover:bg-amber-400 text-slate-950 font-bold";
+      if (btnB1) btnB1.className = (currentActiveLessonId === 1) ? "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-white text-emerald-950 ring-2 ring-emerald-300" : "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-emerald-900/80 hover:bg-emerald-700 text-white";
+      if (btnB2) btnB2.className = (currentActiveLessonId === 2) ? "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-white text-emerald-950 ring-2 ring-emerald-300" : "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-emerald-900/80 hover:bg-emerald-700 text-white";
+      if (btnAll) btnAll.className = (currentActiveLessonId === 'ALL') ? "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-white text-emerald-950 ring-2 ring-emerald-300" : "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 bg-emerald-900/80 hover:bg-emerald-700 text-white";
 
       applyFilters();
     }
@@ -748,16 +772,25 @@
       allRawSubmissions = list;
 
       // Cập nhật số đếm badge
-      const b1Count = allRawSubmissions.filter(s => s.lessonId === 1).length;
-      const b2Count = allRawSubmissions.filter(s => s.lessonId === 2).length;
+      const ck1Count = allRawSubmissions.filter(s => 
+        s.lessonId === 'de_ck1' || 
+        String(s.lesson || '').toLowerCase().includes('cuối kì') || 
+        String(s.lesson || '').toLowerCase().includes('ck1') || 
+        String(s.subCode || '').includes('CK1')
+      ).length;
+      const b1Count = allRawSubmissions.filter(s => s.lessonId === 1 || String(s.subCode || '').includes('-B1-')).length;
+      const b2Count = allRawSubmissions.filter(s => s.lessonId === 2 || String(s.subCode || '').includes('-B2-')).length;
+
+      const badgeCK1 = document.getElementById('badge-count-ck1');
       const badgeB1 = document.getElementById('badge-count-b1');
       const badgeB2 = document.getElementById('badge-count-b2');
+      if (badgeCK1) badgeCK1.innerText = `${ck1Count} bài`;
       if (badgeB1) badgeB1.innerText = `${b1Count} bài`;
       if (badgeB2) badgeB2.innerText = `${b2Count} bài`;
 
       const liveStatus = document.getElementById('live-status-text');
       if (liveStatus) {
-        liveStatus.innerHTML = `Đã đồng bộ (${allRawSubmissions.length} bài nộp: Bài 1: <b>${b1Count}</b>, Bài 2: <b>${b2Count}</b>)`;
+        liveStatus.innerHTML = `Đã đồng bộ (${allRawSubmissions.length} bài nộp: Đề CK1: <b>${ck1Count}</b>, Bài 1: <b>${b1Count}</b>)`;
       }
 
       applyFilters();
@@ -814,7 +847,21 @@
 
       let candidateSubmissions = allRawSubmissions;
       if (currentActiveLessonId !== 'ALL') {
-        candidateSubmissions = allRawSubmissions.filter(s => s.lessonId === parseInt(currentActiveLessonId, 10));
+        if (currentActiveLessonId === 'de_ck1') {
+          candidateSubmissions = allRawSubmissions.filter(s => 
+            s.lessonId === 'de_ck1' || 
+            String(s.lesson || '').toLowerCase().includes('cuối kì') || 
+            String(s.lesson || '').toLowerCase().includes('ck1') || 
+            String(s.subCode || '').includes('CK1')
+          );
+        } else {
+          const lNum = parseInt(currentActiveLessonId, 10);
+          candidateSubmissions = allRawSubmissions.filter(s => 
+            s.lessonId === lNum || 
+            String(s.lesson || '').includes(`Bài ${lNum}`) || 
+            String(s.subCode || '').includes(`-B${lNum}-`)
+          );
+        }
       }
 
       const matchedSubIds = new Set();

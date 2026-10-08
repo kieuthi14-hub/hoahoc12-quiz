@@ -19,6 +19,8 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <!-- Class Rosters Data -->
   <script src="rosters.js"></script>
+  <!-- Question Bank Đề ôn cuối kì 1 -->
+  <script src="questions_ck1.js"></script>
   <style>
     body { font-family: 'Lexend', sans-serif; }
     .font-mono { font-family: 'Fira Code', monospace; }
@@ -48,7 +50,7 @@
         <span class="text-2xl">🧪</span>
         <div>
           <span class="text-[11px] font-semibold uppercase tracking-wider bg-emerald-800/90 px-2.5 py-0.5 rounded-full text-emerald-200">Hóa Học 12 • Kết nối tri thức</span>
-          <h1 id="header-lesson-title" class="text-base md:text-lg font-bold mt-0.5">Bài 1: Ester - Xà phòng</h1>
+          <h1 id="header-lesson-title" class="text-base md:text-lg font-bold mt-0.5">Đề Ôn Cuối Kì 1 - Hóa Học 12</h1>
         </div>
       </div>
       <div class="flex items-center gap-2">
@@ -76,11 +78,12 @@
       <div class="space-y-4 max-w-sm mx-auto text-left">
         <div>
           <label class="block text-xs font-bold text-emerald-950 uppercase mb-1 flex items-center justify-between">
-            <span>1. Chọn Bài học muốn làm *</span>
-            <span class="text-[11px] text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full font-bold">Chương 1: Ester - Lipid</span>
+            <span>1. Chọn Bài học / Đề thi *</span>
+            <span id="lesson-chapter-badge" class="text-[11px] text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full font-bold">Ôn thi Cuối Kì 1</span>
           </label>
           <select id="selected-lesson" onchange="onLessonChange()" class="w-full px-4 py-3 rounded-xl border-2 border-emerald-400 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-emerald-50/50 font-bold text-emerald-950 transition shadow-sm">
-            <option value="1" selected>🧪 Bài 1: Ester - Xà phòng (Trắc nghiệm &amp; Đúng/Sai)</option>
+            <option value="de_ck1" selected>⭐ ĐỀ ÔN CUỐI KÌ 1 (Chuẩn cấu trúc 2025: 18 TN + 4 Đúng/Sai + 6 Trả lời ngắn)</option>
+            <option value="1">🧪 Bài 1: Ester - Xà phòng (Trắc nghiệm &amp; Đúng/Sai)</option>
             <option value="2">🧴 Bài 2: Lipid và chất giặt rửa tổng hợp</option>
             <option value="3">🍬 Bài 3: Glucose và fructose</option>
             <option value="4">🌾 Bài 4: Saccharose và maltose</option>
@@ -260,8 +263,9 @@
     // URL Google Sheets của môn Hóa học (Cài đặt riêng trong giaovien.html)
     const GOOGLE_SCRIPT_URL = localStorage.getItem('hoahoc12_script_url') || "";
 
-    // DANH SÁCH 20 BÀI HỌC HÓA HỌC 12 - KẾT NỐI TRI THỨC
+    // DANH SÁCH BÀI HỌC VÀ ĐỀ THI HÓA HỌC 12 - KẾT NỐI TRI THỨC
     const ALL_LESSONS = [
+      { id: "de_ck1", title: "⭐ Đề ôn cuối kì 1 (18 TN + 4 Đúng/Sai + 6 Trả lời ngắn)", short: "⭐ Đề ôn CK1" },
       { id: 1, title: "Bài 1: Ester - Xà phòng", short: "Bài 1: Ester - Xà phòng" },
       { id: 2, title: "Bài 2: Lipid và chất giặt rửa tổng hợp", short: "Bài 2: Lipid & chất giặt rửa" },
       { id: 3, title: "Bài 3: Glucose và fructose", short: "Bài 3: Glucose & fructose" },
@@ -591,7 +595,8 @@
     ];
 
     // TRẠNG THÁI ỨNG DỤNG
-    let currentQuiz = [...questionsLesson1];
+    let currentLessonKey = 'de_ck1';
+    let currentQuiz = (typeof questionsDeCK1 !== 'undefined') ? [...questionsDeCK1] : [...questionsLesson1];
     let currentIndex = 0;
     let userAnswers = {};
     let studentInfo = { name: '', class: '', custom: false };
@@ -680,7 +685,43 @@
     }
 
     function onStudentNameChange() {}
-    function onLessonChange() {}
+
+    function onLessonChange() {
+      const val = document.getElementById('selected-lesson').value;
+      currentLessonKey = val;
+      const titleEl = document.getElementById('header-lesson-title');
+      const badgeEl = document.getElementById('lesson-chapter-badge');
+      if (val === 'de_ck1') {
+        if (titleEl) titleEl.innerText = "Đề Ôn Cuối Kì 1 - Hóa Học 12";
+        if (badgeEl) badgeEl.innerText = "Ôn thi Cuối Kì 1";
+      } else {
+        const found = ALL_LESSONS.find(l => l.id == val);
+        if (titleEl) titleEl.innerText = found ? found.title : "Luyện tập Hóa học 12";
+        if (badgeEl) badgeEl.innerText = (val === 1 || val === 2) ? "Chương 1: Ester - Lipid" : "Hóa Học 12";
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function checkShortAnswerCorrect(userAns, q) {
+      if (!userAns) return false;
+      const clean = String(userAns).trim().toLowerCase().replace(/\s+/g, '');
+      if (!clean) return false;
+      const cleanWithDot = clean.replace(',', '.');
+      const cleanWithComma = clean.replace('.', ',');
+      return q.correctAnswers.some(ans => {
+        const a = String(ans).trim().toLowerCase().replace(/\s+/g, '');
+        return a === clean || a === cleanWithDot || a === cleanWithComma;
+      });
+    }
 
     // ==========================================
     // BẮT ĐẦU LÀM BÀI
@@ -711,10 +752,28 @@
       studentInfo.name = finalName;
       studentInfo.class = finalClass;
 
-      // Xáo trộn thứ tự đáp án nếu chọn
+      const lessonKey = document.getElementById('selected-lesson').value;
+      currentLessonKey = lessonKey;
+
+      let rawBank = (typeof questionsDeCK1 !== 'undefined') ? questionsDeCK1 : questionsLesson1;
+      let lessonTitle = "Hóa 12 - Đề ôn cuối kì 1";
+
+      if (lessonKey === '1') {
+        rawBank = questionsLesson1;
+        lessonTitle = "Hóa 12 - Bài 1: Ester - Xà phòng";
+      } else if (lessonKey === 'de_ck1') {
+        rawBank = (typeof questionsDeCK1 !== 'undefined') ? questionsDeCK1 : questionsLesson1;
+        lessonTitle = "Hóa 12 - Đề ôn cuối kì 1";
+      } else {
+        const found = ALL_LESSONS.find(l => l.id == lessonKey);
+        rawBank = questionsLesson1;
+        lessonTitle = found ? `Hóa 12 - ${found.title}` : `Hóa 12 - Bài ${lessonKey}`;
+      }
+
+      // Xáo trộn thứ tự đáp án nếu chọn (chỉ xáo trộn đáp án trắc nghiệm MCQ)
       const doShuffle = document.getElementById('shuffle-options-check').checked;
-      currentQuiz = questionsLesson1.map(q => {
-        if (q.type === 'true_false') return { ...q };
+      currentQuiz = rawBank.map(q => {
+        if (q.type === 'true_false' || q.type === 'short_answer') return { ...q };
         if (!doShuffle) return { ...q };
 
         // Xáo trộn phương án cho câu trắc nghiệm đơn
@@ -842,18 +901,48 @@
         }).join('');
 
         box.innerHTML = `
-          <div class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200">
-            Dạng II: Trắc nghiệm Đúng / Sai (Mới 2025)
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200">
+              Dạng II: Trắc nghiệm Đúng / Sai (Mới 2025)
+            </span>
+            ${q.part ? `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${q.part}</span>` : ''}
           </div>
-          <div class="p-3.5 bg-purple-50/60 rounded-2xl border border-purple-200 text-xs text-slate-700 leading-relaxed font-normal">
+          ${q.passage ? `
+          <div class="p-3.5 bg-purple-50/60 rounded-2xl border border-purple-200 text-xs text-slate-700 leading-relaxed font-normal mt-2">
             <strong class="text-purple-900 block mb-1 font-bold">📄 Đoạn thông tin thực tế:</strong>
             ${q.passage}
-          </div>
-          <div class="text-sm font-bold text-slate-900 leading-snug">
+          </div>` : ''}
+          <div class="text-sm font-bold text-slate-900 leading-snug mt-2">
             <span class="text-emerald-700">Câu ${idx + 1}:</span> ${q.q}
           </div>
           <div class="space-y-2 mt-3">
             ${itemsHtml}
+          </div>
+        `;
+
+      } else if (q.type === 'short_answer') {
+        // Render DẠNG III: Trả lời ngắn
+        const userVal = userAnswers[idx] || '';
+
+        box.innerHTML = `
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+              Dạng III: Trắc nghiệm trả lời ngắn (0,25đ)
+            </span>
+            ${q.part ? `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${q.part}</span>` : ''}
+          </div>
+          <div class="text-sm sm:text-base font-bold text-slate-900 leading-snug mt-2">
+            <span class="text-emerald-700">Câu ${idx + 1}:</span> ${q.q}
+          </div>
+          <div class="mt-4 p-4 bg-amber-50/70 rounded-2xl border-2 border-amber-300 shadow-sm">
+            <label class="block text-xs font-bold text-amber-950 mb-1.5 flex items-center justify-between">
+              <span>✍️ Nhập câu trả lời ngắn của em:</span>
+              <span class="text-[11px] font-normal text-amber-800">Tự động ghi nhận khi gõ</span>
+            </label>
+            <input type="text" id="short-answer-input-${idx}" value="${escapeHtml(userVal)}" oninput="onShortAnswerChange(${idx}, this.value)" placeholder="Ví dụ: 88 hoặc 0,8 hoặc 1200..." class="w-full px-4 py-3 rounded-xl border-2 border-amber-400 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono font-bold text-base bg-white text-slate-900 shadow-sm transition">
+            <div class="text-[11px] text-amber-900/80 mt-2 flex items-center gap-1.5 leading-relaxed">
+              <span>💡</span> <span><b>Lưu ý:</b> Em chỉ cần điền kết quả dạng số hoặc từ ngữ ngắn theo yêu cầu của đề bài.</span>
+            </div>
           </div>
         `;
 
@@ -875,10 +964,13 @@
         }).join('');
 
         box.innerHTML = `
-          <div class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
-            Dạng I: Trắc nghiệm 4 lựa chọn
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+              Dạng I: Trắc nghiệm 4 lựa chọn (0,25đ)
+            </span>
+            ${q.part ? `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${q.part}</span>` : ''}
           </div>
-          <div class="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+          <div class="text-sm sm:text-base font-bold text-slate-900 leading-snug mt-2">
             <span class="text-emerald-700">Câu ${idx + 1}:</span> ${q.q}
           </div>
           <div class="space-y-2.5 mt-3">
@@ -913,6 +1005,11 @@
       renderQuestion(qIdx);
     }
 
+    function onShortAnswerChange(qIdx, val) {
+      userAnswers[qIdx] = val;
+      renderNavGrid();
+    }
+
     function prevQuestion() {
       if (currentIndex > 0) {
         currentIndex--;
@@ -941,6 +1038,8 @@
         if (q.type === 'true_false') {
           const ans = userAnswers[idx];
           isDone = ans && Object.keys(ans).length === 4;
+        } else if (q.type === 'short_answer') {
+          isDone = userAnswers[idx] !== undefined && String(userAnswers[idx]).trim() !== '';
         } else {
           isDone = userAnswers[idx] !== undefined;
         }
@@ -968,6 +1067,8 @@
         if (q.type === 'true_false') {
           const ans = userAnswers[idx];
           if (!ans || Object.keys(ans).length < 4) unDoneCount++;
+        } else if (q.type === 'short_answer') {
+          if (!userAnswers[idx] || String(userAnswers[idx]).trim() === '') unDoneCount++;
         } else {
           if (userAnswers[idx] === undefined) unDoneCount++;
         }
@@ -989,10 +1090,12 @@
     function finishQuiz() {
       clearInterval(timerInterval);
 
-      // Tính điểm theo thang 10 chuẩn
+      // Tính điểm chuẩn theo cấu trúc Bộ GD&ĐT 2025
       let totalEarnedUnits = 0;
       let totalPossibleUnits = 0;
       let correctCountDisplay = 0;
+
+      const isExamCK1 = (currentLessonKey === 'de_ck1');
 
       currentQuiz.forEach((q, idx) => {
         if (q.type === 'true_false') {
@@ -1012,16 +1115,31 @@
             totalEarnedUnits += 1.0;
             correctCountDisplay++;
           }
+        } else if (q.type === 'short_answer') {
+          const weight = isExamCK1 ? 0.25 : 1.0;
+          totalPossibleUnits += weight;
+          if (checkShortAnswerCorrect(userAnswers[idx], q)) {
+            totalEarnedUnits += weight;
+            correctCountDisplay++;
+          }
         } else {
-          totalPossibleUnits += 1.0;
+          // MCQ
+          const weight = isExamCK1 ? 0.25 : 1.0;
+          totalPossibleUnits += weight;
           if (userAnswers[idx] === q.answer) {
-            totalEarnedUnits += 1.0;
+            totalEarnedUnits += weight;
             correctCountDisplay++;
           }
         }
       });
 
-      const finalScore10 = ((totalEarnedUnits / totalPossibleUnits) * 10).toFixed(1);
+      let finalScore10 = 0;
+      if (isExamCK1) {
+        // Tổng điểm tối đa đúng bằng 10.0 (18*0.25 + 4*1.0 + 6*0.25 = 10.0)
+        finalScore10 = Math.min(10, Math.round(totalEarnedUnits * 100) / 100).toFixed(2);
+      } else {
+        finalScore10 = ((totalEarnedUnits / totalPossibleUnits) * 10).toFixed(1);
+      }
 
       // Hiển thị kết quả
       document.getElementById('quiz-screen').classList.add('hidden');
@@ -1030,7 +1148,7 @@
 
       document.getElementById('res-student-info').innerHTML = `Học sinh: <b class="text-slate-800">${studentInfo.name}</b> • Lớp: <b class="text-emerald-700">${studentInfo.class}</b>`;
       document.getElementById('res-score-number').innerText = finalScore10;
-      document.getElementById('res-fraction').innerText = `Đúng ${totalEarnedUnits.toFixed(2)} / ${totalPossibleUnits} phần điểm (${correctCountDisplay}/${currentQuiz.length} câu hoàn chỉnh)`;
+      document.getElementById('res-fraction').innerText = `Đạt ${totalEarnedUnits.toFixed(2)} / ${totalPossibleUnits.toFixed(2)} điểm (${correctCountDisplay}/${currentQuiz.length} câu hoàn chỉnh)`;
 
       // Badge giám sát
       const cheatBadge = document.getElementById('res-anti-cheat-badge');
@@ -1049,7 +1167,8 @@
       const cleanClass = studentInfo.class.replace(/\s+/g, '').toUpperCase();
       const randNum = Math.floor(1000 + Math.random() * 9000);
       const vSuffix = `-V${tabSwitchCount}${isAutoSubmit ? 'X' : ''}`;
-      const subCode = `#HOA12-${cleanClass}-B1-${randNum}${vSuffix}`;
+      const lessonPrefix = (currentLessonKey === 'de_ck1') ? 'CK1' : `B${currentLessonKey}`;
+      const subCode = `#HOA12-${cleanClass}-${lessonPrefix}-${randNum}${vSuffix}`;
       document.getElementById('res-sub-code').innerText = subCode;
 
       // Phút giây làm bài
@@ -1064,6 +1183,8 @@
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       }
 
+      const lessonTitle = (currentLessonKey === 'de_ck1') ? "Hóa 12 - Đề ôn cuối kì 1" : (currentLessonKey === '1' ? "Hóa 12 - Bài 1: Ester - Xà phòng" : `Hóa 12 - Bài ${currentLessonKey}`);
+
       // Lưu bài nộp
       const record = {
         id: Date.now(),
@@ -1071,10 +1192,10 @@
         subCode: subCode,
         name: studentInfo.name,
         className: studentInfo.class,
-        lesson: "Hóa 12 - Bài 1: Ester - Xà phòng",
-        lessonId: 1,
+        lesson: lessonTitle,
+        lessonId: currentLessonKey,
         score: finalScore10,
-        correctCount: `${totalEarnedUnits.toFixed(2)}/${totalPossibleUnits}`,
+        correctCount: `${totalEarnedUnits.toFixed(2)}/${totalPossibleUnits.toFixed(2)}`,
         timeElapsed: timeElapsedStr,
         timestamp: dateFormatted,
         tabSwitchCount: tabSwitchCount,
@@ -1176,6 +1297,20 @@
 
           isCorrect = cCount === 4;
           userDetailHtml = `<div class="space-y-1.5 mt-2">${itemsDetail}</div>`;
+
+        } else if (q.type === 'short_answer') {
+          const userVal = (userAnswers[idx] || '').trim();
+          isCorrect = checkShortAnswerCorrect(userVal, q);
+
+          userDetailHtml = `
+            <div class="text-xs mt-1.5 space-y-1">
+              <div>Em trả lời: <b class="${isCorrect ? 'text-emerald-700 font-bold font-mono' : 'text-rose-600 font-bold font-mono'}">${escapeHtml(userVal) || 'Chưa nhập câu trả lời'}</b> ${isCorrect ? '✅' : '❌'}</div>
+              <div>Đáp án chuẩn: <b class="text-emerald-700 font-bold font-mono">${q.displayAnswer}</b></div>
+              <div class="p-2 bg-emerald-50/60 rounded-xl border border-emerald-200 text-emerald-900 text-[11px] mt-1.5">
+                <b>💡 Hướng dẫn giải chi tiết:</b> ${q.exp}
+              </div>
+            </div>
+          `;
 
         } else {
           const userSel = userAnswers[idx];
