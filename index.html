@@ -773,7 +773,7 @@
       // Xáo trộn thứ tự đáp án nếu chọn (chỉ xáo trộn đáp án trắc nghiệm MCQ)
       const doShuffle = document.getElementById('shuffle-options-check').checked;
       currentQuiz = rawBank.map(q => {
-        if (q.type === 'true_false' || q.type === 'short_answer') return { ...q };
+        if (q.type === 'true_false' || q.type === 'short_answer' || !q.options) return { ...q };
         if (!doShuffle) return { ...q };
 
         // Xáo trộn phương án cho câu trắc nghiệm đơn

@@ -391,6 +391,7 @@ var questionsDeCK1 = [
   },
   {
     part: "PHẦN III. CÂU HỎI TRẢ LỜI NGẮN (1,5 ĐIỂM)",
+    type: "short_answer",
     q: "Phản ứng tổng hợp glucose trong cây xanh cần được cung cấp năng lượng là 2813 kJ cho mỗi mol glucose tạo thành: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂. Nếu trong một phút, mỗi cm² lá xanh nhận được khoảng 2,09 J năng lượng mặt trời, nhưng chỉ 10% được sử dụng vào phản ứng tổng hợp glucose. Với một ngày nắng (từ 6h00 – 17h00) diện tích lá xanh là 1 m², lượng glucose tổng hợp được x,2659 gam. Giá trị của x là bao nhiêu?",
     correctAnswers: ["88"],
     displayAnswer: "88",
@@ -398,6 +399,7 @@ var questionsDeCK1 = [
   },
   {
     part: "PHẦN III. CÂU HỎI TRẢ LỜI NGẮN (1,5 ĐIỂM)",
+    type: "short_answer",
     q: "Valine là một loại amino acid thiết yếu, cần được cung cấp từ nguồn thực phẩm bên ngoài, cơ thể không tự tổng hợp được. Khi cho 1,404 gam valine hòa tan trong nước được dung dịch. Dung dịch này phản ứng vừa đủ với 12 mL dung dịch NaOH có nồng độ C (mol/L), thu được 1,668 gam muối. Giá trị của C là bao nhiêu?",
     correctAnswers: ["1", "1.0", "1,0", "1M", "1 M"],
     displayAnswer: "1",
@@ -405,6 +407,7 @@ var questionsDeCK1 = [
   },
   {
     part: "PHẦN III. CÂU HỎI TRẢ LỜI NGẮN (1,5 ĐIỂM)",
+    type: "short_answer",
     q: "Bradykinin có tác dụng làm giảm huyết áp, đó là một nonapeptide có công thức là: Arg–Pro–Pro–Gly–Phe–Ser–Pro–Phe–Arg. Khi thủy phân không hoàn toàn peptide này có thể thu được bao nhiêu tripeptide mà trong thành phần có Phenylalanine (Phe)?",
     correctAnswers: ["5"],
     displayAnswer: "5",
@@ -412,6 +415,7 @@ var questionsDeCK1 = [
   },
   {
     part: "PHẦN III. CÂU HỎI TRẢ LỜI NGẮN (1,5 ĐIỂM)",
+    type: "short_answer",
     q: "Cellulose triacetate (CTA, [C₆H₇O₂(OOCCH₃)₃]ₙ) là polymer được sử dụng để sản xuất tơ sợi chống nhăn, màng cho màn hình tinh thể lỏng,... Một đoạn mạch cellulose triacetate có phân tử khối là 345 600 thì chứa bao nhiêu mắt xích?",
     correctAnswers: ["1200", "1.200"],
     displayAnswer: "1200",
@@ -419,6 +423,7 @@ var questionsDeCK1 = [
   },
   {
     part: "PHẦN III. CÂU HỎI TRẢ LỜI NGẮN (1,5 ĐIỂM)",
+    type: "short_answer",
     q: "Có bao nhiêu amine bậc 1 ứng với amine có công thức phân tử C₃H₉N?",
     correctAnswers: ["2"],
     displayAnswer: "2",
