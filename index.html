@@ -96,8 +96,6 @@
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Chọn Lớp của em *</label>
           <select id="student-class" onchange="onClassChange()" class="w-full px-4 py-3 rounded-xl border-2 border-emerald-200 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white font-semibold text-slate-800 transition">
             <option value="">-- Bấm vào đây để chọn lớp --</option>
-            <option value="12A5">Lớp 12A5</option>
-            <option value="12A7">Lớp 12A7</option>
             <option value="12A9">Lớp 12A9</option>
             <option value="Khác">Lớp khác (Tự gõ tên lớp)...</option>
           </select>
@@ -259,8 +257,8 @@
     // ==========================================
     // CẤU HÌNH BACKEND & THÔNG TIN BÀI HỌC
     // ==========================================
-    // URL Google Sheets của môn Hóa học (Có thể dán link Apps Script mới tại đây hoặc cài trong giaovien.html)
-    const GOOGLE_SCRIPT_URL = localStorage.getItem('hoahoc12_script_url') || "https://script.google.com/macros/s/AKfycbw4r-YWh1K5uppwF9LgzYGN42N-dIYVq-GdDExH2wmHQVTp8pTdxcYU_biP188Q427H/exec";
+    // URL Google Sheets của môn Hóa học (Cài đặt riêng trong giaovien.html)
+    const GOOGLE_SCRIPT_URL = localStorage.getItem('hoahoc12_script_url') || "";
 
     // DANH SÁCH 20 BÀI HỌC HÓA HỌC 12 - KẾT NỐI TRI THỨC
     const ALL_LESSONS = [
@@ -613,20 +611,13 @@
       classSelect.innerHTML = '<option value="">-- Bấm vào đây để chọn lớp --</option>';
 
       const rosters = (typeof CLASS_ROSTERS !== 'undefined') ? CLASS_ROSTERS : {};
-      const knownClasses = Object.keys(rosters);
+      const knownClasses = Object.keys(rosters).filter(c => c !== '12A5' && c !== '12A7');
 
       if (knownClasses.length > 0) {
         knownClasses.forEach(c => {
           const opt = document.createElement('option');
           opt.value = c;
           opt.innerText = `Lớp ${c} (${rosters[c].length} học sinh)`;
-          classSelect.appendChild(opt);
-        });
-      } else {
-        ['12A5', '12A7', '12A9'].forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c;
-          opt.innerText = `Lớp ${c}`;
           classSelect.appendChild(opt);
         });
       }
@@ -1054,11 +1045,11 @@
         cheatBadge.innerHTML = `🛡️ Giám sát: Làm bài trung thực (0 lần rời màn hình)`;
       }
 
-      // Tạo mã nộp bài duy nhất
+      // Tạo mã nộp bài duy nhất của môn Hóa Học 12
       const cleanClass = studentInfo.class.replace(/\s+/g, '').toUpperCase();
       const randNum = Math.floor(1000 + Math.random() * 9000);
       const vSuffix = `-V${tabSwitchCount}${isAutoSubmit ? 'X' : ''}`;
-      const subCode = `#${cleanClass}-B1-${randNum}${vSuffix}`;
+      const subCode = `#HOA12-${cleanClass}-B1-${randNum}${vSuffix}`;
       document.getElementById('res-sub-code').innerText = subCode;
 
       // Phút giây làm bài
@@ -1076,10 +1067,11 @@
       // Lưu bài nộp
       const record = {
         id: Date.now(),
+        subject: "HOAHOC12",
         subCode: subCode,
         name: studentInfo.name,
         className: studentInfo.class,
-        lesson: "Bài 1: Ester - Xà phòng",
+        lesson: "Hóa 12 - Bài 1: Ester - Xà phòng",
         lessonId: 1,
         score: finalScore10,
         correctCount: `${totalEarnedUnits.toFixed(2)}/${totalPossibleUnits}`,
@@ -1107,17 +1099,21 @@
         localStorage.setItem('hoahoc12_submissions', JSON.stringify(localList));
       } catch(e) {}
 
-      // 2. Gửi về Google Sheets
+      // 2. Gửi về Google Sheets nếu có cài đặt
       let success = false;
-      try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(record)
-        });
-        success = true;
-      } catch(e) {
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.includes('script.google.com')) {
+        try {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(record)
+          });
+          success = true;
+        } catch(e) {
+          console.warn("Gửi Google Sheets thất bại:", e);
+        }
+      }
         console.warn("Gửi Google Sheets thất bại:", e);
       }
 

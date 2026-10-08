@@ -196,8 +196,6 @@
               <span class="text-xs font-bold text-slate-600">Lớp:</span>
               <select id="filter-class" onchange="applyFilters()" class="text-xs font-bold px-3 py-2 rounded-xl border border-emerald-300 bg-emerald-50/50 text-emerald-950 focus:ring-2 focus:ring-emerald-500">
                 <option value="ALL" selected>Tất cả các lớp</option>
-                <option value="12A5">Lớp 12A5</option>
-                <option value="12A7">Lớp 12A7</option>
                 <option value="12A9">Lớp 12A9</option>
               </select>
             </div>
@@ -452,7 +450,7 @@
     }
 
     function getGoogleScriptUrl() {
-      return localStorage.getItem('hoahoc12_script_url') || "https://script.google.com/macros/s/AKfycbw4r-YWh1K5uppwF9LgzYGN42N-dIYVq-GdDExH2wmHQVTp8pTdxcYU_biP188Q427H/exec";
+      return localStorage.getItem('hoahoc12_script_url') || "";
     }
 
     // ĐĂNG NHẬP & XÁC THỰC GIÁO VIÊN
@@ -572,7 +570,7 @@
       if (!sel) return;
       sel.innerHTML = '<option value="ALL" selected>Tất cả các lớp</option>';
       const rosters = (typeof CLASS_ROSTERS !== 'undefined') ? CLASS_ROSTERS : {};
-      Object.keys(rosters).forEach(c => {
+      Object.keys(rosters).filter(c => c !== '12A5' && c !== '12A7').forEach(c => {
         const opt = document.createElement('option');
         opt.value = c;
         opt.innerText = `Lớp ${c} (${rosters[c].length} HS)`;
@@ -689,19 +687,21 @@
       let list = [];
       const scriptUrl = getGoogleScriptUrl();
 
-      try {
-        const res = await fetch(`${scriptUrl}?_t=${Date.now()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.submissions && Array.isArray(data.submissions)) {
-            list = data.submissions;
+      if (scriptUrl && scriptUrl.includes('script.google.com')) {
+        try {
+          const res = await fetch(`${scriptUrl}?_t=${Date.now()}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.submissions && Array.isArray(data.submissions)) {
+              list = data.submissions;
+            }
           }
+        } catch (e) {
+          console.warn("Lỗi tải Apps Script Google:", e);
         }
-      } catch (e) {
-        console.warn("Lỗi tải Apps Script Google:", e);
       }
 
-      // Hợp nhất dữ liệu LocalStorage
+      // Hợp nhất dữ liệu LocalStorage của môn Hóa học
       try {
         const local = JSON.parse(localStorage.getItem('hoahoc12_submissions') || '[]');
         local.forEach(item => {
@@ -710,6 +710,29 @@
           }
         });
       } catch(e) {}
+
+      // LỌC NGHIÊM NGẶT: TUYỆT ĐỐI KHÔNG HIỂN THỊ ĐIỂM CỦA MÔN KTPL SANG MÔN HÓA
+      list = list.filter(item => {
+        const sub = String(item.subject || '').toUpperCase();
+        if (sub === 'KTPL12' || sub === 'KTPL') return false;
+
+        const lesson = String(item.lesson || '').toUpperCase();
+        const code = String(item.subCode || '').toUpperCase();
+
+        if (code.includes('KTPL')) return false;
+        if (lesson.includes('KTPL') || lesson.includes('KINH TẾ') || lesson.includes('PHÁP LUẬT') ||
+            lesson.includes('BẢO HIỂM') || lesson.includes('AN SINH') || lesson.includes('HỘI NHẬP') ||
+            lesson.includes('TĂNG TRƯỞNG')) {
+          return false;
+        }
+
+        // Loại bỏ các mã thuộc bài thi KTPL cũ nếu chưa có tag HOA
+        if ((code.includes('#12A7-') || code.includes('#12A5-')) && !code.includes('HOA')) {
+          return false;
+        }
+
+        return true;
+      });
 
       // Chuẩn hóa kiểu dữ liệu an toàn
       list.forEach(item => {
@@ -780,11 +803,11 @@
       const rosters = (typeof CLASS_ROSTERS !== 'undefined') ? CLASS_ROSTERS : {};
 
       if (selectedClass === 'ALL') {
-        Object.keys(rosters).forEach(c => {
+        Object.keys(rosters).filter(c => c !== '12A5' && c !== '12A7').forEach(c => {
           rosters[c].forEach(s => rosterList.push({ ...s }));
         });
       } else {
-        if (rosters[selectedClass]) {
+        if (selectedClass !== '12A5' && selectedClass !== '12A7' && rosters[selectedClass]) {
           rosters[selectedClass].forEach(s => rosterList.push({ ...s }));
         }
       }
