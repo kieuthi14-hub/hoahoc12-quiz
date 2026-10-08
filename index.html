@@ -1114,8 +1114,6 @@
           console.warn("Gửi Google Sheets thất bại:", e);
         }
       }
-        console.warn("Gửi Google Sheets thất bại:", e);
-      }
 
       if (statusBox) {
         if (success) {
@@ -1236,9 +1234,11 @@
     }
 
     // KHỞI ĐỘNG KHI TẢI TRANG
-    window.addEventListener('DOMContentLoaded', () => {
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', initClassDropdown);
+    } else {
       initClassDropdown();
-    });
+    }
   </script>
 </body>
 </html>
